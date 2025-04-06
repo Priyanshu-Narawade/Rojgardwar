@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RojgarDwar - Auth</title>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body class="flex flex-col min-h-screen bg-background p-4">
+  <header class="flex flex-col items-center justify-center py-8">
+    <div class="w-16 h-16 rounded-full bg-primary flex items-center justify-center mb-4">
+      <span class="text-primary-foreground font-bold text-2xl">RD</span>
+    </div>
+    <h1 class="font-bold text-2xl text-center">RojgarDwar</h1>
+    <p class="text-muted-foreground text-center mt-2">Empowering rural communities with jobs and opportunities</p>
+  </header>
+
+  <div class="auth-container w-full max-w-md mx-auto">
+    <div class="tabs grid grid-cols-2 mb-6">
+      <button class="tab-button active" onclick="openTab(event, 'login')">Login</button>
+      <button class="tab-button" onclick="openTab(event, 'signup')">Sign Up</button>
+    </div>
+
+    <!-- Login Tab -->
+    <div id="login" class="tab-content">
+      <label for="login-phone">Phone Number</label>
+      <input type="tel" id="login-phone" placeholder="Enter your phone number" />
+
+      <label for="login-password">Password</label>
+      <input type="password" id="login-password" placeholder="Enter your password" />
+
+      <p class="error-message" id="login-error"></p>
+
+      <button class="w-full mt-2" onclick="login()">Login</button>
+    </div>
+
+    <!-- Signup Tab -->
+    <div id="signup" class="tab-content" style="display: none;">
+      <label for="signup-name">Full Name</label>
+      <input type="text" id="signup-name" placeholder="Enter your full name" />
+
+      <label for="signup-phone">Phone Number</label>
+      <input type="tel" id="signup-phone" placeholder="Enter your phone number" />
+
+      <label for="signup-village">Village</label>
+      <input type="text" id="signup-village" placeholder="Enter your village name" />
+
+      <label for="education">Education Level</label>
+      <select id="education">
+        <option value="">Select your education level</option>
+        <option value="primary">Primary School</option>
+        <option value="secondary">Secondary School</option>
+        <option value="highschool">High School</option>
+        <option value="graduate">Graduate</option>
+        <option value="other">Other</option>
+      </select>
+
+      <label>Areas of Interest</label>
+      <div class="interests-grid">
+        <label><input type="checkbox" value="Agriculture"/> Agriculture</label>
+        <label><input type="checkbox" value="Carpentry"/> Carpentry</label>
+        <label><input type="checkbox" value="Digital Skills"/> Digital Skills</label>
+        <label><input type="checkbox" value="Handicrafts"/> Handicrafts</label>
+        <label><input type="checkbox" value="Construction"/> Construction</label>
+        <label><input type="checkbox" value="Healthcare"/> Healthcare</label>
+      </div>
+
+      <label for="job-type">Looking for Job in</label>
+      <select id="job-type">
+        <option value="">Select job category</option>
+        <option value="agriculture">Agriculture</option>
+        <option value="construction">Construction</option>
+        <option value="handicrafts">Handicrafts</option>
+        <option value="retail">Retail</option>
+        <option value="services">Services</option>
+        <option value="other">Other</option>
+      </select>
+
+      <label for="signup-password">Create Password</label>
+      <input type="password" id="signup-password" placeholder="Create a password" />
+
+      <p class="error-message" id="signup-error"></p>
+
+      <button class="w-full mt-2" onclick="signup()">Sign Up</button>
+    </div>
+  </div>
+
+  <script>
+    function openTab(evt, tabName) {
+      const tabs = document.getElementsByClassName("tab-content");
+      const buttons = document.getElementsByClassName("tab-button");
+
+      for (let tab of tabs) tab.style.display = "none";
+      for (let btn of buttons) btn.classList.remove("active");
+
+      document.getElementById(tabName).style.display = "block";
+      evt.currentTarget.classList.add("active");
+    }
+
+    async function login() {
+      const phone = document.getElementById("login-phone").value;
+      const password = document.getElementById("login-password").value;
+      const error = document.getElementById("login-error");
+
+      const response = await fetch("http://localhost:5000/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone, password }),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        localStorage.setItem("user", JSON.stringify(data));
+        window.location.href = "index.html";
+      } else {
+        error.textContent = data.message || "Login failed.";
+      }
+    }
+
+    async function signup() {
+      const name = document.getElementById("signup-name").value;
+      const phone = document.getElementById("signup-phone").value;
+      const village = document.getElementById("signup-village").value;
+      const education = document.getElementById("education").value;
+      const interests = Array.from(document.querySelectorAll(".interests-grid input:checked")).map(i => i.value);
+      const job_category = document.getElementById("job-type").value;
+      const password = document.getElementById("signup-password").value;
+      const error = document.getElementById("signup-error");
+
+      const response = await fetch("http://localhost:5000/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, phone, village, education, interests, job_category, password }),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        localStorage.setItem("user", JSON.stringify(data));
+        window.location.href = "index.html";
+      } else {
+        error.textContent = data.message || "Signup failed.";
+      }
+    }
+  </script>
+</body>
+</html>
